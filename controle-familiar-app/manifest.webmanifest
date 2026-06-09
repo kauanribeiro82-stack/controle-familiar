@@ -1,0 +1,17 @@
+{
+  "name": "Controle Familiar",
+  "short_name": "Controle Familiar",
+  "description": "Dashboard financeiro da familia Lara Ayres Ribeiro.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#10100f",
+  "theme_color": "#10100f",
+  "icons": [
+    {
+      "src": "../brasao-familia.png.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
