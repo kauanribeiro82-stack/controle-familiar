@@ -1,3 +1,34 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  getFirestore,
+  setDoc,
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBBQ18MTog7DYgoKRhIPo7_QxeiggM4Gc",
+  authDomain: "controle-familiar-18cfd.firebaseapp.com",
+  projectId: "controle-familiar-18cfd",
+  storageBucket: "controle-familiar-18cfd.firebasestorage.app",
+  messagingSenderId: "38920513702",
+  appId: "1:38920513702:web:887a2163bc4fbdd3552c67",
+  measurementId: "G-RF5P9QBWVE",
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+const FAMILY_ID = "lara-ayres-ribeiro";
+
 const currency = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
@@ -207,6 +238,8 @@ seedEntries = buildSpreadsheetSeedEntries();
 
 let entries = JSON.parse(localStorage.getItem("controle-familiar.entries") || "null") || seedEntries;
 entries = entries.map((entry) => ({ ...entry, id: entry.id || crypto.randomUUID() }));
+let currentUser = null;
+let cloudReady = false;
 if (!localStorage.getItem("controle-familiar.migration-planilha-2026-v1")) {
   const manualEntries = entries.filter((entry) => !legacySeedIds.has(entry.id) && !entry.id.startsWith("planilha-2026-"));
   entries = [...manualEntries, ...seedEntries];
@@ -259,6 +292,8 @@ const splash = document.querySelector("#splash");
 const loginView = document.querySelector("#loginView");
 const dashboardView = document.querySelector("#dashboardView");
 const loginForm = document.querySelector("#loginForm");
+const createAccountButton = document.querySelector("#createAccountButton");
+const authMessage = document.querySelector("#authMessage");
 const entryModal = document.querySelector("#entryModal");
 const entryForm = document.querySelector("#entryForm");
 const newEntryButton = document.querySelector("#newEntryButton");
@@ -281,6 +316,8 @@ const isInstallment = document.querySelector("#isInstallment");
 const isMonthly = document.querySelector("#isMonthly");
 const advisorTone = document.querySelector("#advisorTone");
 const advisorFocus = document.querySelector("#advisorFocus");
+const migrateCloudButton = document.querySelector("#migrateCloudButton");
+const cloudMessage = document.querySelector("#cloudMessage");
 
 setTimeout(() => splash.classList.add("done"), 2600);
 
@@ -292,11 +329,17 @@ advisorFocus.value = localStorage.getItem("controle-familiar.advisorFocus") || "
 updateProfileGreeting();
 setEntryKind("income");
 
-loginForm.addEventListener("submit", (event) => {
+loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  loginView.classList.add("hidden");
-  dashboardView.classList.remove("hidden");
-  render();
+  await signIn();
+});
+
+createAccountButton.addEventListener("click", async () => {
+  await createAccount();
+});
+
+migrateCloudButton.addEventListener("click", async () => {
+  await migrateLocalEntriesToCloud();
 });
 
 settingsThemeButton.addEventListener("click", toggleTheme);
@@ -1441,6 +1484,84 @@ function comparisonText(current, previous) {
 
 function persistEntries() {
   localStorage.setItem("controle-familiar.entries", JSON.stringify(entries));
+  if (cloudReady) {
+    entries.forEach((entry) => saveEntryToCloud(entry));
+  }
+}
+
+async function signIn() {
+  try {
+    authMessage.textContent = "Entrando...";
+    await signInWithEmailAndPassword(auth, valueOf("email"), valueOf("password"));
+  } catch (error) {
+    authMessage.textContent = authErrorMessage(error);
+  }
+}
+
+async function createAccount() {
+  try {
+    authMessage.textContent = "Criando conta...";
+    await createUserWithEmailAndPassword(auth, valueOf("email"), valueOf("password"));
+  } catch (error) {
+    authMessage.textContent = authErrorMessage(error);
+  }
+}
+
+onAuthStateChanged(auth, async (user) => {
+  currentUser = user;
+  if (!user) return;
+
+  authMessage.textContent = "Carregando dados...";
+  loginView.classList.add("hidden");
+  dashboardView.classList.remove("hidden");
+  await loadEntriesFromCloud();
+  cloudReady = true;
+  render();
+});
+
+async function loadEntriesFromCloud() {
+  const snapshot = await getDocs(entriesCollection());
+  if (snapshot.empty) {
+    cloudMessage.textContent = "Nenhum dado na nuvem ainda. Voce pode migrar os dados locais.";
+    return;
+  }
+
+  entries = snapshot.docs.map((item) => item.data());
+  localStorage.setItem("controle-familiar.entries", JSON.stringify(entries));
+  cloudMessage.textContent = "Dados carregados da nuvem.";
+}
+
+async function migrateLocalEntriesToCloud() {
+  if (!currentUser) {
+    cloudMessage.textContent = "Entre na conta antes de migrar.";
+    return;
+  }
+
+  cloudMessage.textContent = "Migrando dados...";
+  await Promise.all(entries.map(saveEntryToCloud));
+  cloudReady = true;
+  cloudMessage.textContent = "Dados locais enviados para a nuvem.";
+}
+
+async function saveEntryToCloud(entry) {
+  if (!currentUser || !entry.id) return;
+  await setDoc(doc(entriesCollection(), entry.id), entry);
+}
+
+async function deleteEntryFromCloud(id) {
+  if (!currentUser || !id) return;
+  await deleteDoc(doc(entriesCollection(), id));
+}
+
+function entriesCollection() {
+  return collection(db, "families", FAMILY_ID, "entries");
+}
+
+function authErrorMessage(error) {
+  if (error.code === "auth/email-already-in-use") return "Este email ja tem conta. Use Entrar.";
+  if (error.code === "auth/invalid-credential") return "Email ou senha incorretos.";
+  if (error.code === "auth/weak-password") return "A senha precisa ter pelo menos 6 caracteres.";
+  return "Nao foi possivel autenticar. Confira email e senha.";
 }
 
 document.addEventListener("click", (event) => {
@@ -1467,6 +1588,7 @@ document.addEventListener("click", (event) => {
     const confirmed = confirm(`Excluir "${entry.description}"?`);
     if (!confirmed) return;
     entries = entries.filter((item) => item.id !== entry.id);
+    deleteEntryFromCloud(entry.id);
     persistEntries();
     render();
   }
