@@ -3,13 +3,451 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="refresh" content="0; url=./controle-familiar-app/index.html" />
+    <meta name="theme-color" content="#111111" />
     <title>Controle Familiar</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="../brasao-familia.png.png" />
+    <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
-    <p>Redirecionando para o Controle Familiar...</p>
-    <script>
-      window.location.href = "./controle-familiar-app/index.html";
-    </script>
+    <div class="splash" id="splash">
+      <img src="../brasao-familia.png.png" alt="Brasao Lara Ayres Ribeiro" class="splash__crest" />
+      <div class="splash__title">Controle Familiar</div>
+      <div class="splash__subtitle">Lara Ayres Ribeiro</div>
+    </div>
+
+    <main class="app" id="app">
+      <section class="login-view" id="loginView">
+        <div class="brand-panel">
+          <img src="../brasao-familia.png.png" alt="Brasao Lara Ayres Ribeiro" class="brand-panel__crest" />
+          <p class="eyebrow">Lara Ayres Ribeiro</p>
+          <h1>Controle Familiar</h1>
+          <p>Financas da familia com lancamentos por data, vencimentos, parcelas e visao mensal.</p>
+        </div>
+
+        <form class="login-card" id="loginForm">
+          <div>
+            <p class="eyebrow">Acesso</p>
+            <h2>Entrar no painel</h2>
+          </div>
+          <label>
+            Email
+            <input type="email" id="email" placeholder="kauan@email.com" autocomplete="email" required />
+          </label>
+          <label>
+            Senha
+            <input type="password" id="password" placeholder="Digite sua senha" autocomplete="current-password" required />
+          </label>
+          <button type="submit" class="primary-button">Entrar</button>
+          <button type="button" class="ghost-button" id="createAccountButton">Criar conta</button>
+          <p class="login-note" id="authMessage">Entre com email e senha para sincronizar seus dados.</p>
+        </form>
+      </section>
+
+      <section class="dashboard-view hidden" id="dashboardView">
+        <aside class="sidebar">
+          <div class="sidebar__brand">
+            <img src="../brasao-familia.png.png" alt="" />
+            <div>
+              <strong>Controle Familiar</strong>
+              <span>Lara Ayres Ribeiro</span>
+            </div>
+          </div>
+          <nav class="tabs" aria-label="Areas do app">
+            <button class="tab active" data-tab="dashboard">Dashboard</button>
+            <button class="tab" data-tab="calendario">Calendario</button>
+            <button class="tab" data-tab="financeiro">Financeiro</button>
+            <button class="tab" data-tab="movimentacoes">Movimentacoes</button>
+            <button class="tab" data-tab="planejamento">Planejamento</button>
+          </nav>
+          <button class="sidebar-advisor" id="sidebarAdvisorButton" type="button">
+            <span class="advisor-icon">✦</span>
+            <strong>Conselheiro Financeiro</strong>
+            <small>Analise familiar disponivel</small>
+            <em>Ver analise</em>
+          </button>
+        </aside>
+
+        <section class="content">
+          <header class="topbar">
+            <div>
+              <p class="eyebrow">Junho 2026</p>
+              <h2 id="pageTitle">Dashboard</h2>
+            </div>
+            <div class="top-actions">
+              <label class="top-search">
+                <span>Pesquisar</span>
+                <input id="topSearch" placeholder="Pesquisar..." />
+              </label>
+              <button class="icon-top-button" id="settingsButton" type="button" title="Configuracoes">⚙</button>
+              <div class="profile-card" id="profileCard">
+                <div class="profile-avatar" id="profileAvatar">K</div>
+                <div>
+                  <strong id="profileGreeting">Ola, Kauan</strong>
+                </div>
+              </div>
+              <select class="profile-select hidden" id="activeProfile" title="Perfil ativo">
+                <option>Kauan</option>
+                <option>Raissa</option>
+              </select>
+              <button class="primary-button compact" id="newEntryButton" type="button">Novo lancamento</button>
+            </div>
+          </header>
+
+          <section class="panel" data-panel="dashboard">
+            <section class="hero-dashboard">
+              <article class="hero-card">
+                <div class="hero-card__icon">$</div>
+                <div>
+                  <span>Saldo atual</span>
+                  <strong id="heroBalance">R$ 0,00</strong>
+                  <small id="heroHint">Analise do mes</small>
+                </div>
+              </article>
+              <article class="ai-brief">
+                <div class="ai-brief__head">
+                  <div>
+                    <strong>Conselheiro Financeiro</strong>
+                    <span>Analise executiva do mes</span>
+                  </div>
+                  <span class="status-dot"></span>
+                </div>
+                <p id="dashboardAdvice">Calculando leitura do mes...</p>
+                <div class="ai-brief__metrics">
+                  <div><span>Saude</span><strong id="aiHealthMini">--</strong></div>
+                  <div><span>Pendencias</span><strong id="aiPendingMini">--</strong></div>
+                  <div><span>Maior gasto</span><strong id="aiTopMini">--</strong></div>
+                </div>
+              </article>
+            </section>
+
+            <div class="dashboard-controls">
+              <div>
+                <p class="eyebrow">Analise mensal</p>
+                <strong id="dashboardMonthLabel">Junho 2026</strong>
+              </div>
+              <label>
+                Visao
+                <select id="dashboardScope">
+                  <option value="all">Familia inteira</option>
+                  <option>Kauan</option>
+                  <option>Raissa</option>
+                  <option>Casal</option>
+                </select>
+              </label>
+              <div class="month-controls">
+                <button class="ghost-button month-button" id="dashboardPrevMonth" type="button">Anterior</button>
+                <button class="ghost-button month-button" id="dashboardNextMonth" type="button">Proximo</button>
+              </div>
+            </div>
+
+            <div class="metrics">
+              <article class="metric">
+                <span>Receitas</span>
+                <strong id="metricIncome">R$ 0,00</strong>
+                <small id="deltaIncome">Comparacao indisponivel</small>
+              </article>
+              <article class="metric">
+                <span>Despesas</span>
+                <strong id="metricExpense">R$ 0,00</strong>
+                <small id="deltaExpense">Comparacao indisponivel</small>
+              </article>
+              <article class="metric">
+                <span>Resta pagar</span>
+                <strong id="metricRemaining">R$ 0,00</strong>
+                <small id="deltaInvestments">Comparacao indisponivel</small>
+              </article>
+              <article class="metric metric--balance">
+                <span>Saldo atual</span>
+                <strong id="metricBalance">R$ 0,00</strong>
+                <small id="deltaBalance">Comparacao indisponivel</small>
+              </article>
+            </div>
+
+            <div class="grid">
+              <article class="chart-panel health-panel">
+                <h3>Saude financeira</h3>
+                <div class="health-score" id="healthScore"></div>
+              </article>
+              <article class="chart-panel">
+                <h3>Receitas, despesas e saldo</h3>
+                <div class="annual-chart" id="annualChart"></div>
+              </article>
+              <article class="chart-panel">
+                <h3>Gastos por area</h3>
+                <div class="bars" id="ownerBars"></div>
+              </article>
+              <article class="chart-panel">
+                <h3>Gastos por categoria</h3>
+                <div class="bars" id="categoryBars"></div>
+              </article>
+              <article class="chart-panel">
+                <h3>Proximos vencimentos</h3>
+                <div class="due-list" id="dueList"></div>
+              </article>
+              <article class="chart-panel">
+                <h3>Projecao do mes</h3>
+                <div class="projection" id="projectionPanel"></div>
+              </article>
+              <article class="chart-panel">
+                <h3>Hoje</h3>
+                <div class="due-list" id="todayPanel"></div>
+              </article>
+              <article class="chart-panel">
+                <h3>Proximos 7 dias</h3>
+                <div class="due-list" id="weekPanel"></div>
+              </article>
+              <article class="chart-panel">
+                <h3>Resta pagar por area</h3>
+                <div class="bars" id="remainingByOwner"></div>
+              </article>
+              <article class="chart-panel">
+                <h3>Maiores gastos</h3>
+                <div class="due-list" id="topExpenses"></div>
+              </article>
+              <article class="chart-panel">
+                <h3>Alertas</h3>
+                <div class="due-list" id="alertsPanel"></div>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel hidden" data-panel="financeiro">
+            <div class="subtabs">
+              <button class="subtab active" data-finance-tab="kauan">Kauan</button>
+              <button class="subtab" data-finance-tab="raissa">Raissa</button>
+              <button class="subtab" data-finance-tab="casal">Casal</button>
+            </div>
+            <section class="finance-panel" data-finance-panel="kauan"></section>
+            <section class="finance-panel hidden" data-finance-panel="raissa"></section>
+            <section class="finance-panel hidden" data-finance-panel="casal"></section>
+          </section>
+
+          <section class="panel hidden" data-panel="calendario">
+            <article class="person-section">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Agenda financeira</p>
+                  <h3>Calendario de gastos</h3>
+                </div>
+                <div class="month-controls">
+                  <button class="ghost-button month-button" id="prevMonth" type="button">Anterior</button>
+                  <strong id="calendarLabel">Junho 2026</strong>
+                  <button class="ghost-button month-button" id="nextMonth" type="button">Proximo</button>
+                </div>
+              </div>
+              <div class="calendar-grid" id="calendarGrid"></div>
+              <div class="day-details" id="dayDetails"></div>
+            </article>
+          </section>
+          <section class="panel hidden" data-panel="movimentacoes">
+            <div class="subtabs">
+              <button class="subtab active" data-movement-tab="pesquisa">Pesquisa</button>
+              <button class="subtab" data-movement-tab="lancamentos">Lancamentos</button>
+            </div>
+            <section class="movement-panel" data-movement-panel="pesquisa">
+            <article class="person-section">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Consulta</p>
+                  <h3>Pesquisa de lancamentos</h3>
+                </div>
+              </div>
+              <div class="filter-grid">
+                <label>
+                  Buscar
+                  <input id="searchText" placeholder="Descricao ou categoria" />
+                </label>
+                <label>
+                  Dono
+                  <select id="searchOwner">
+                    <option value="all">Todos</option>
+                    <option>Kauan</option>
+                    <option>Raissa</option>
+                    <option>Casal</option>
+                  </select>
+                </label>
+                <label>
+                  Tipo
+                  <select id="searchType">
+                    <option value="all">Todos</option>
+                    <option value="income">Receita</option>
+                    <option value="expense">Despesa</option>
+                    <option value="investment">Investimento</option>
+                  </select>
+                </label>
+                <label>
+                  Status
+                  <select id="searchStatus">
+                    <option value="all">Todos</option>
+                    <option>Pago</option>
+                    <option>Pendente</option>
+                    <option>Atrasado</option>
+                  </select>
+                </label>
+              </div>
+              <div class="search-summary" id="searchSummary"></div>
+              <div class="bars" id="searchResults"></div>
+            </article>
+            </section>
+            <section class="movement-panel hidden" data-movement-panel="lancamentos"></section>
+          </section>
+          <section class="panel hidden" data-panel="planejamento"></section>
+          <section class="panel hidden" data-panel="configuracoes">
+            <article class="person-section">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Sistema</p>
+                  <h3>Configuracoes</h3>
+                </div>
+              </div>
+              <div class="grid">
+                <article class="chart-panel">
+                  <h3>Perfil</h3>
+                  <div class="filter-grid compact-filters">
+                    <label>
+                      Perfil ativo
+                      <select id="settingsProfile">
+                        <option>Kauan</option>
+                        <option>Raissa</option>
+                      </select>
+                    </label>
+                  </div>
+                </article>
+                <article class="chart-panel">
+                  <h3>Aparencia</h3>
+                  <button class="ghost-button" id="settingsThemeButton" type="button">Alternar tema</button>
+                </article>
+                <article class="chart-panel">
+                  <h3>Dados</h3>
+                  <button class="ghost-button" id="migrateCloudButton" type="button">Migrar dados locais para nuvem</button>
+                  <p class="login-note" id="cloudMessage">Use depois de entrar na sua conta.</p>
+                </article>
+                <article class="chart-panel">
+                  <h3>Conselheiro Financeiro</h3>
+                  <div class="filter-grid compact-filters advisor-settings">
+                    <label>
+                      Estilo de conselho
+                      <select id="advisorTone">
+                        <option value="balanced">Equilibrado</option>
+                        <option value="strict">Mais rigido</option>
+                        <option value="supportive">Mais tranquilo</option>
+                      </select>
+                    </label>
+                    <label>
+                      Foco principal
+                      <select id="advisorFocus">
+                        <option value="balance">Fechar o mes positivo</option>
+                        <option value="debt">Reduzir parcelados</option>
+                        <option value="saving">Guardar dinheiro</option>
+                        <option value="family">Planejamento familiar</option>
+                      </select>
+                    </label>
+                  </div>
+                  <p class="login-note">Essas configuracoes ajustam as sugestoes automaticas do Conselheiro Financeiro.</p>
+                </article>
+              </div>
+            </article>
+          </section>
+        </section>
+      </section>
+
+      <dialog class="entry-modal" id="entryModal">
+        <form method="dialog" class="entry-form" id="entryForm">
+          <header>
+            <div>
+              <p class="eyebrow">Novo registro</p>
+              <h3>Novo lancamento</h3>
+            </div>
+            <button type="button" class="icon-button" id="closeModal">x</button>
+          </header>
+          <div class="entry-kind-picker" id="entryKindPicker">
+            <button type="button" class="kind-card active" data-kind="income">
+              <strong>Receita</strong>
+              <span>Salario, pensao, freelancer ou renda extra</span>
+            </button>
+            <button type="button" class="kind-card" data-kind="expense">
+              <strong>Despesa</strong>
+              <span>Gasto unico, mensal ou parcelado</span>
+            </button>
+            <button type="button" class="kind-card" data-kind="investment">
+              <strong>Investimento</strong>
+              <span>Aporte, fundos, ouro ou ativos</span>
+            </button>
+          </div>
+          <div class="form-grid">
+            <label>
+              Dono
+              <select id="owner">
+                <option>Kauan</option>
+                <option>Raissa</option>
+                <option>Casal</option>
+              </select>
+            </label>
+            <label class="hidden">
+              Tipo
+              <select id="type">
+                <option value="income">Receita</option>
+                <option value="expense">Despesa</option>
+                <option value="investment">Investimento</option>
+              </select>
+            </label>
+            <label>
+              Descricao
+              <input id="description" required placeholder="Ex: Futebol, mercado, pensao" />
+            </label>
+            <label>
+              Categoria
+              <select id="category">
+              </select>
+            </label>
+            <label>
+              Valor
+              <input id="amount" type="number" min="0" step="0.01" required placeholder="0,00" />
+            </label>
+            <label>
+              Data
+              <input id="date" type="date" required />
+            </label>
+            <label>
+              Status
+              <select id="status">
+                <option>Pendente</option>
+                <option>Pago</option>
+                <option>Atrasado</option>
+              </select>
+            </label>
+            <div class="choice-row" id="monthlyChoice">
+              <span>Repete todo mes?</span>
+              <label><input type="checkbox" id="isMonthly" /> Sim, e mensal</label>
+            </div>
+            <div class="choice-row" id="installmentChoice">
+              <span>Parcelou?</span>
+              <label><input type="checkbox" id="isInstallment" /> Sim, foi parcelado</label>
+            </div>
+            <label class="installment-field hidden">
+              Quantas vezes?
+              <input id="installmentTotal" type="number" min="1" value="1" />
+            </label>
+            <label class="installment-field hidden">
+              Parcela atual
+              <input id="installmentNumber" type="number" min="1" value="1" />
+            </label>
+            <label>
+              Quem pagou
+              <select id="paidBy">
+                <option>Nao informado</option>
+                <option>Kauan</option>
+                <option>Raissa</option>
+              </select>
+            </label>
+          </div>
+          <button class="primary-button" type="submit">Adicionar</button>
+        </form>
+      </dialog>
+    </main>
+    <div class="insight-tooltip hidden" id="insightTooltip"></div>
+
+    <script type="module" src="./src/app.js"></script>
   </body>
 </html>
